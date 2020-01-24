@@ -122,6 +122,7 @@ class CommandLineInterface
     end
   end
 
+  # Opening Sequence when you start a new game
   def opening_sequence
     system("clear")
     notice("One day, while at the market...")
@@ -191,17 +192,17 @@ class CommandLineInterface
   end
 
   # Header UI
-  def status
-    system("clear")
+  def print_status
     puts "Farmer #{farmer.name}".bold.colorize(:color => :black, :background => :light_white)
     puts "🌖 Day #{farmer.day}"
     puts "💰 #{farmer.money} G"
     puts ""
   end
 
-  # Reusable game header
+  # Reusable game header, also prints warning/success messages
   def game_header(place)
-    status
+    system("clear")
+    print_status
     puts "==============================================="
     puts place
     puts "==============================================="
@@ -220,10 +221,8 @@ class CommandLineInterface
 
   # Main menu prompt
   def game_menu
-    status
     game_header("                 YOUR FARM")
     choice = select_prompt("MAIN MENU", main_menu_options)
-    system("clear")
     case choice
     when "Inventory"
       show_inventory
@@ -621,7 +620,6 @@ class CommandLineInterface
   end
 
   def go_to_town
-    puts "town entered"
     game_header("                    TOWN")
     notice("Welcome to Prospera Town!", :yellow)
 
