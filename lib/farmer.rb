@@ -99,6 +99,11 @@ class Farmer < ActiveRecord::Base
     }
   end
 
+  # returns array of crop_type instances that match the farmer's season
+  def crops_in_season
+    CropType.where("season = ?", self.season)
+  end
+
   def buy_seed_bag(crop_type)
     SeedBag.create(
       "farmer_id": self.id,

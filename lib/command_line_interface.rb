@@ -122,16 +122,16 @@ class CommandLineInterface
   def choose_a_difficulty
     puts "Choose a difficulty."
     puts "Note:"
-    puts "In Easy Mode, you start with a cow and sheep and 2000G.".colorize(:cyan)
-    puts "In Normal Mode, you start with a cow and 1500G.".colorize(:green)
-    puts "In Hard Mode, you start with no livestock and 1000G.".colorize(:red)
+    puts "In Easy Mode, you start with a cow and sheep and 2000 G.".colorize(:cyan)
+    puts "In Normal Mode, you start with a cow and 1500 G.".colorize(:green)
+    puts "In Hard Mode, you start with no livestock and 1000 G.".colorize(:red)
     difficulty_choice = select_prompt("", [ "Easy", "Normal", "Hard" ])
     case difficulty_choice
     when "Easy"
       cow_name = naming_prompt("What's your cow's name?")
       sheep_name = naming_prompt("What's your sheep's name?")
-      Livestock.create(animal_id: Animal.first.id, farmer_id: farmer.id, name: cow_name)
-      Livestock.create(animal_id: Animal.last.id, farmer_id: farmer.id, name: sheep_name)
+      Livestock.create(animal_id: Animal.find_by(species: "cow").id, farmer_id: farmer.id, name: cow_name)
+      Livestock.create(animal_id: Animal.find_by(species: "sheep").id, name: sheep_name)
     when "Normal"
       cow_name = naming_prompt("What's your cow's name?")
       Livestock.create(animal_id: Animal.first.id, farmer_id: farmer.id, name: cow_name)
@@ -146,7 +146,7 @@ class CommandLineInterface
   def opening_sequence
     system("clear")
     notice("One day, while at the market...")
-    puts "Note: Press enter to advance...".colorize(:white)
+    puts "Note: Press enter to advance..."
     gets
     notice("... a small dog was on sale.")
     gets
@@ -187,10 +187,10 @@ class CommandLineInterface
     self.farmer = Farmer.find_by(name: choice)
     notice("Welcome back, Farmer #{self.farmer.name}!", :magenta)
     puts ""
-    sleep(1.seconds)
+    sleep(1.3)
 
     stop_audio
-    sleep(1.seconds)
+    # sleep(1.seconds)
     start_audio("./audio/02.mp3")
     game_menu
   end
@@ -213,7 +213,19 @@ class CommandLineInterface
 
   # Header UI
   def print_status
+    case farmer.season
+    when "spring"
+      ui_season_text = "🌸 Spring"
+    when "summer"
+      ui_season_text = "🏖 Summer"
+    when "fall"
+      ui_season_text = "🍁 Fall"
+    when "winter"
+      ui_season_text = "⛄️ Winter"
+    end
+    puts ""
     puts "Farmer #{farmer.name}".bold.colorize(:color => :black, :background => :light_white)
+    puts ui_season_text
     puts "🌖 Day #{farmer.day}"
     puts "💰 #{farmer.money} G"
     puts ""
@@ -246,7 +258,6 @@ class CommandLineInterface
     case choice
     when "Inventory"
       show_inventory
-      select_prompt("Press Enter to Exit.", ["Exit"])
       game_menu
     when "Field"
       go_to_field
@@ -339,6 +350,7 @@ class CommandLineInterface
       puts "None."
       puts "-------------------------------------------"
     end
+    select_prompt("Press Enter to Exit.", ["Exit"])
   end
 
   def field_options
@@ -420,7 +432,7 @@ class CommandLineInterface
   end
 
   def crop_options
-    array = CropType.pluck("crop_name")
+    array = farmer.crops_in_season.pluck("crop_name")
     array << "Exit"
   end
 
@@ -521,7 +533,7 @@ class CommandLineInterface
       puts "==========================================="
       puts ""
       rows = []
-      CropType.all.each do |crop_type|
+      farmer.crops_in_season.each do |crop_type|
         one_row = []
         one_row << "#{crop_type.crop_name}".upcase.bold
         one_row << "#{crop_type.days_to_grow}".bold
