@@ -32,18 +32,17 @@ ActiveRecord::Schema.define(version: 2020_01_25_170556) do
     t.integer "day", default: 1
     t.string "dog"
     t.string "season", default: "fall"
-    t.integer "money", default: 1500
-    t.integer "barn_count", default: 2
+    t.integer "money", default: 2000
   end
 
   create_table "livestocks", force: :cascade do |t|
     t.integer "farmer_id"
     t.integer "animal_id"
     t.string "name"
-    t.integer "love"
-    t.integer "brushed"
-    t.integer "fed"
-    t.integer "counter"
+    t.integer "love", default: 1
+    t.integer "brushed", default: 0
+    t.integer "fed", default: 0
+    t.integer "day_counter_for_product", default: 1
   end
 
   create_table "products", force: :cascade do |t|

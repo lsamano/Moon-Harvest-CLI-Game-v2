@@ -130,11 +130,11 @@ class CommandLineInterface
     when "Easy"
       cow_name = naming_prompt("What's your cow's name?")
       sheep_name = naming_prompt("What's your sheep's name?")
-      Livestock.create(animal_id: Animal.first.id, farmer_id: farmer.id, name: cow_name, love: 1, brushed: 0, fed: 0, counter: 1)
-      Livestock.create(animal_id: Animal.last.id, farmer_id: farmer.id, name: sheep_name, love: 1, brushed: 0, fed: 0, counter: 1)
+      Livestock.create(animal_id: Animal.first.id, farmer_id: farmer.id, name: cow_name)
+      Livestock.create(animal_id: Animal.last.id, farmer_id: farmer.id, name: sheep_name)
     when "Normal"
       cow_name = naming_prompt("What's your cow's name?")
-      Livestock.create(animal_id: Animal.first.id, farmer_id: farmer.id, name: cow_name, love: 1, brushed: 0, fed: 0, counter: 1)
+      Livestock.create(animal_id: Animal.first.id, farmer_id: farmer.id, name: cow_name)
       self.farmer.update(money: 1500)
     when "Hard"
       notice("The farmer life sure is hard!")
@@ -474,7 +474,7 @@ class CommandLineInterface
       one_row << "#{hearts}"
       one_row << (livestock.brushed? ? "✅" : "🔳")
       one_row << (livestock.fed? ? "✅" : "🔳")
-      product_emoji = livestock.counter < livestock.animal.frequency ? "❌" : "⭕️"
+      product_emoji = livestock.day_counter_for_product < livestock.animal.frequency ? "❌" : "⭕️"
       one_row << product_emoji
       rows << one_row
     end
@@ -495,12 +495,12 @@ class CommandLineInterface
       self.success_message = "You fed #{chosen_livestock.name}! They seem to like it."
       pick_an_animal
     elsif action == "get product"
-      if chosen_livestock.counter < chosen_livestock.animal.frequency
+      if chosen_livestock.day_counter_for_product < chosen_livestock.animal.frequency
         self.warning_message = "#{chosen_livestock.name} is not ready for you to do that!"
         return pick_an_animal
       else
         Product.create(livestock_id: chosen_livestock.id, farmer_id: farmer.id)
-        chosen_livestock.update(counter: 0)
+        chosen_livestock.update(day_counter_for_product: 0)
         if chosen_livestock.animal.species == "cow"
           self.success_message = "You milked #{chosen_livestock.name}!"
         elsif chosen_livestock.animal.species == "sheep"
@@ -688,8 +688,8 @@ class CommandLineInterface
       # Animals updated
       livestock_array = farmer.livestocks
       livestock_array.each do |livestock|
-        if livestock.counter < livestock.animal.frequency
-          livestock.increment!(:counter)
+        if livestock.day_counter_for_product < livestock.animal.frequency
+          livestock.increment!(:day_counter_for_product)
         end
         if livestock.fed? && livestock.brushed? && livestock.love < 10
           livestock.increment!(:love)
