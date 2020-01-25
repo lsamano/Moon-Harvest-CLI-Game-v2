@@ -27,6 +27,13 @@ sheep = Animal.create(
 ######################################################
 ## Fall Crops
 CropType.create(
+  crop_name: "spinach",
+  days_to_grow: 5,
+  buy_price: 440,
+  season: "fall",
+  sell_price: 1890
+)
+CropType.create(
   crop_name: "carrot",
   days_to_grow: 6,
   buy_price: 390,
@@ -39,13 +46,6 @@ CropType.create(
   buy_price: 240,
   season: "fall",
   sell_price: 990
-)
-CropType.create(
-  crop_name: "spinach",
-  days_to_grow: 5,
-  buy_price: 440,
-  season: "fall",
-  sell_price: 1890
 )
 CropType.create(
   crop_name: "eggplant",
@@ -62,95 +62,95 @@ CropType.create(
   sell_price: 2250
 )
 
-# ## Summer Crops
-# CropType.create(
-#   crop_name: "pumpkin",
-#   days_to_grow: 4,
-#   buy_price: 180,
-#   season: "summer",
-#   sell_price: 1620
-# )
-# CropType.create(
-#   crop_name: "watermelon",
-#   days_to_grow: 7,
-#   buy_price: 360,
-#   season: "summer",
-#   sell_price: 3060
-# )
-# CropType.create(
-#   crop_name: "onion",
-#   days_to_grow: 6,
-#   buy_price: 270,
-#   season: "summer",
-#   sell_price: 1260
-# )
-# CropType.create(
-#   crop_name: "corn",
-#   days_to_grow: 14,
-#   buy_price: 140,
-#   season: "summer",
-#   sell_price: 3960
-# )
-# CropType.create(
-#   crop_name: "tomato",
-#   days_to_grow: 12,
-#   buy_price: 110,
-#   season: "summer",
-#   sell_price: 3240
-# )
+## Summer Crops
+CropType.create(
+  crop_name: "pumpkin",
+  days_to_grow: 4,
+  buy_price: 180,
+  season: "summer",
+  sell_price: 1620
+)
+CropType.create(
+  crop_name: "onion",
+  days_to_grow: 6,
+  buy_price: 270,
+  season: "summer",
+  sell_price: 1260
+)
+CropType.create(
+  crop_name: "watermelon",
+  days_to_grow: 7,
+  buy_price: 360,
+  season: "summer",
+  sell_price: 3060
+)
+CropType.create(
+  crop_name: "tomato",
+  days_to_grow: 12,
+  buy_price: 110,
+  season: "summer",
+  sell_price: 3240
+)
+CropType.create(
+  crop_name: "corn",
+  days_to_grow: 14,
+  buy_price: 140,
+  season: "summer",
+  sell_price: 3960
+)
 
-# ## Spring Crops
-# CropType.create(
-#   crop_name: "cabbage",
-#   days_to_grow: 13,
-#   buy_price: 810,
-#   season: "spring",
-#   sell_price: 3690
-# )
-# CropType.create(
-#   crop_name: "potato",
-#   days_to_grow: 8,
-#   buy_price: 450,
-#   season: "spring",
-#   sell_price: 1890
-# )
-# CropType.create(
-#   crop_name: "strawberry",
-#   days_to_grow: 15,
-#   buy_price: 1350,
-#   season: "spring",
-#   sell_price: 4320
-# )
-# CropType.create(
-#   crop_name: "turnip",
-#   days_to_grow: 5,
-#   buy_price: 180,
-#   season: "spring",
-#   sell_price: 990
-# )
-# CropType.create(
-#   crop_name: "cucumber",
-#   days_to_grow: 9,
-#   buy_price: 720,
-#   season: "spring",
-#   sell_price: 2160
-# )
-#
-# ## Winter Crops
-# CropType.create(
-#   crop_name: "broccoli",
-#   days_to_grow: 8,
-#   buy_price: 540,
-#   season: "spring",
-#   sell_price: 1620
-# )
-# CropType.create(
-#   crop_name: "daikon",
-#   days_to_grow: 4,
-#   buy_price: 180,
-#   season: "spring",
-#   sell_price: 810
-# )
+## Spring Crops
+CropType.create(
+  crop_name: "turnip",
+  days_to_grow: 5,
+  buy_price: 180,
+  season: "spring",
+  sell_price: 990
+)
+CropType.create(
+  crop_name: "potato",
+  days_to_grow: 8,
+  buy_price: 450,
+  season: "spring",
+  sell_price: 1890
+)
+CropType.create(
+  crop_name: "cucumber",
+  days_to_grow: 9,
+  buy_price: 720,
+  season: "spring",
+  sell_price: 2160
+)
+CropType.create(
+  crop_name: "cabbage",
+  days_to_grow: 13,
+  buy_price: 810,
+  season: "spring",
+  sell_price: 3690
+)
+CropType.create(
+  crop_name: "strawberry",
+  days_to_grow: 15,
+  buy_price: 1350,
+  season: "spring",
+  sell_price: 4320
+)
+
+## Winter Crops
+CropType.create(
+  crop_name: "daikon",
+  days_to_grow: 4,
+  buy_price: 180,
+  season: "winter",
+  sell_price: 810
+)
+CropType.create(
+  crop_name: "broccoli",
+  days_to_grow: 8,
+  buy_price: 540,
+  season: "winter",
+  sell_price: 1620
+)
 
 
 # ######################################################

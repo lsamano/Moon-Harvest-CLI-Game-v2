@@ -326,7 +326,7 @@ class CommandLineInterface
       puts "-------------------------------------------"
     end
     puts ""
-    if !farmer.product_inventory_hash.empty?
+    if farmer.product_inventory_hash.any?
       rows = []
       farmer.product_inventory_hash.each do |product, amount|
         one_row = []
@@ -540,7 +540,7 @@ class CommandLineInterface
         one_row << "#{crop_type.buy_price}".bold + " G"
         rows << one_row
       end
-      market_table = Terminal::Table.new :title => "Fall Crops on Sale".bold.colorize(:magenta), :headings => ['Name', 'Days to Grow', 'Price'], :rows => rows
+      market_table = Terminal::Table.new :title => "#{farmer.season.titleize} Crops on Sale".bold.colorize(:magenta), :headings => ['Name', 'Days to Grow', 'Price'], :rows => rows
       market_table.align_column(1, :center)
       market_table.align_column(2, :center)
       puts market_table
