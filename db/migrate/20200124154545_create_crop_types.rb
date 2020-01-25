@@ -1,4 +1,4 @@
-class CreateCropTypes < ActiveRecord::Migration[6.0]
+class CreateCropTypes < ActiveRecord::Migration[5.2]
   def change
     create_table :crop_types do |t|
       t.string  "crop_name"

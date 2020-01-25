@@ -1,4 +1,4 @@
-class CreateSeedBags < ActiveRecord::Migration[6.0]
+class CreateSeedBags < ActiveRecord::Migration[5.2]
   def change
     create_table :seed_bags do |t|
       t.integer "farmer_id"

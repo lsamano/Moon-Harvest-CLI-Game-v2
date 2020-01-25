@@ -1,4 +1,4 @@
-class CreateLivestocks < ActiveRecord::Migration[6.0]
+class CreateLivestocks < ActiveRecord::Migration[5.2]
   def change
     create_table :livestocks do |t|
       t.integer "farmer_id"
