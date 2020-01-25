@@ -112,13 +112,33 @@ class CommandLineInterface
       return character_creation
     else
       self.farmer = Farmer.create(name: farmer_name)
+      choose_a_difficulty
+      notice("You are Farmer #{self.farmer.name}. Welcome!".bold, :magenta)
+      sleep(2.seconds)
+      opening_sequence
+    end
+  end
+
+  def choose_a_difficulty
+    puts "Choose a difficulty."
+    puts "Note:"
+    puts "In Easy Mode, you start with a cow and sheep and 2000G.".colorize(:cyan)
+    puts "In Normal Mode, you start with a cow and 1500G.".colorize(:green)
+    puts "In Hard Mode, you start with no livestock and 1000G.".colorize(:red)
+    difficulty_choice = select_prompt("", [ "Easy", "Normal", "Hard" ])
+    case difficulty_choice
+    when "Easy"
       cow_name = naming_prompt("What's your cow's name?")
       sheep_name = naming_prompt("What's your sheep's name?")
       Livestock.create(animal_id: Animal.first.id, farmer_id: farmer.id, name: cow_name, love: 1, brushed: 0, fed: 0, counter: 1)
       Livestock.create(animal_id: Animal.last.id, farmer_id: farmer.id, name: sheep_name, love: 1, brushed: 0, fed: 0, counter: 1)
-      notice("You are Farmer #{self.farmer.name}. Welcome!".bold, :magenta)
-      sleep(2.seconds)
-      opening_sequence
+    when "Normal"
+      cow_name = naming_prompt("What's your cow's name?")
+      Livestock.create(animal_id: Animal.first.id, farmer_id: farmer.id, name: cow_name, love: 1, brushed: 0, fed: 0, counter: 1)
+      self.farmer.update(money: 1500)
+    when "Hard"
+      notice("The farmer life sure is hard!")
+      self.farmer.update(money: 1000)
     end
   end
 
