@@ -245,9 +245,10 @@ class CommandLineInterface
 
   def show_inventory
     game_header("                   INVENTORY")
-    if !farmer.seed_bag_inventory_hash.empty?
+    unplanted_hash = farmer.seed_bag_count_hash(0)
+    if unplanted_hash.any?
       rows = []
-      farmer.seed_bag_inventory_hash.each do |seed_bag, amount_owned|
+      unplanted_hash.each do |seed_bag, amount_owned|
         crop = CropType.find_by(crop_name: seed_bag)
         one_row = []
         one_row << "#{seed_bag}".upcase.bold
@@ -269,9 +270,10 @@ class CommandLineInterface
       puts "-------------------------------------------"
     end
     puts ""
-    if !farmer.ripe_seed_inventory_hash.empty?
+    harvested_hash = farmer.seed_bag_count_hash(1)
+    if harvested_hash.any?
       rows = []
-      farmer.ripe_seed_inventory_hash.each do |ripe_seed, amount_owned|
+      harvested_hash.each do |ripe_seed, amount_owned|
         crop = CropType.find_by(crop_name: ripe_seed)
         one_row = []
         one_row << "#{ripe_seed}".upcase.bold
@@ -541,11 +543,12 @@ class CommandLineInterface
       end
 
     when "Sell Crops"
-      if farmer.ripe_seed_inventory_hash.empty?
+      harvested_hash = farmer.seed_bag_count_hash(1)
+      if harvested_hash.none?
         self.warning_message = "Vendor: Doesn't look like you have any crops \nto sell me."
       else
         total = 0
-        farmer.ripe_seed_inventory_hash.each do |crop_name, amount|
+        harvested_hash.each do |crop_name, amount|
           crop = CropType.find_by(crop_name: crop_name)
           subtotal = crop.sell_price * amount
           puts "#{crop_name}".upcase.bold.colorize(:magenta) + " x #{amount} = #{subtotal} G"

@@ -38,8 +38,8 @@ class Farmer < ActiveRecord::Base
     }
   end
 
-  # Numbered list of seed bags owned. Yields to the search criteria to narrow
-  # what is listed
+  # Numbered list of seed bags owned. Yields to
+  # the search criteria to narrow what is listed
   def seed_bag_hash
     array = yield
     array.each_with_object({}).with_index { |(seed_bag, hash), index|
@@ -48,33 +48,30 @@ class Farmer < ActiveRecord::Base
     #=> {"1. Turnip"=> <seed_bag_instance>, "2. Tomato"=> <seed_bag_instance>}
   end
 
-  def seed_bag_inventory_hash
-    seed_name_array = self.crop_types.where("planted = ?", 0).where("harvested = ?", 0).pluck("crop_name")
-    seed_name_array.each_with_object(Hash.new(0)) do |crop_name, inv_hash|
-      inv_hash[crop_name] += 1
-    end
-    #=> {"turnip"=>2, "radish"=>5} For unplanted seed bags
-  end
-
   # Briefly lists seed bags in inventory
   def brief_inventory
-    self.seed_bag_inventory_hash.each do |crop_name, amount|
+    self.seed_bag_count_hash(0).each do |crop_name, amount|
       puts "#{crop_name}".upcase.bold + " x#{amount}"
     end
     #=> TURNIP x4
     #=> TOMATO x1
   end
 
-  def ripe_seed_inventory_hash
-    seed_name_array = self.crop_types.where("planted = ?", 0).where("harvested = ?", 1).pluck("crop_name")
-    seed_name_array.each_with_object(Hash.new(0)) do |crop_name, inv_hash|
+  # returns counting hash for use in inventory and menus (tables)
+  def seed_bag_count_hash(boolean)
+    # boolean == 0 means unplanted seed bags
+    # boolean == 1 means harvested crops
+    seed_bag_array = self.crop_types.where("planted = ?", 0).where("harvested = ?", boolean)
+    name_array = seed_bag_array.pluck("crop_name")
+    name_array.each_with_object(Hash.new(0)) do |crop_name, inv_hash|
       inv_hash[crop_name] += 1
     end
-    #=> {"turnip"=>2, "radish"=>5} For harvested crops
+    # => {"turnip"=>2, "radish"=>5} for unplanted seed bags or harvested crops
   end
 
   def product_inventory_hash
-    # product_array = self.products.where("farmer_id = ?", self.id) #.map{ |i| i.livestock.animal.product_name}
+    # product_array = self.products.where("farmer_id = ?", self.id)
+    #.map{ |i| i.livestock.animal.product_name}
 
     self.products.each_with_object(Hash.new(0)) do |product_instance, inv_hash|
       inv_hash[product_instance.livestock.animal.product_name] += 1
@@ -96,7 +93,10 @@ class Farmer < ActiveRecord::Base
   end
 
   def livestocks_hash
-    self.livestocks.each_with_object({}).with_index{ |(livestock, hash), index| hash["#{index+1}. #{livestock.name}"] = livestock}
+    self.livestocks.each_with_object({})
+    .with_index{ |(livestock, hash), index|
+      hash["#{index+1}. #{livestock.name}"] = livestock
+    }
   end
 
   def buy_seed_bag(crop_type)
