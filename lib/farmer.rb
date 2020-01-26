@@ -70,12 +70,11 @@ class Farmer < ActiveRecord::Base
   end
 
   def product_inventory_hash
-    # The line below is done to query the database again for the newest data
-    product_array = self.products.where("farmer_id = ?", self.id)
-    #.map{ |i| i.livestock.animal.product_name}
+    # The .where below is done to query the database again for the newest data
+    name_array = self.products.where("farmer_id = ?", self.id).map(&:product_name)
 
-    product_array.each_with_object(Hash.new(0)) do |product_instance, inv_hash|
-      inv_hash[product_instance.livestock.animal.product_name] += 1
+    name_array.each_with_object(Hash.new(0)) do |product_name, inv_hash|
+      inv_hash[product_name] += 1
     end
   end
 
