@@ -78,7 +78,7 @@ class Farmer < ActiveRecord::Base
     end
   end
 
-  def dog_flavor_text_array
+  def dog_flavor_text
     [
       "#{self.dog} is quietly snoring on your bed...",
       "Oh no! #{self.dog} found their way into the \nfridge and ate all of the string cheese!",
@@ -90,6 +90,7 @@ class Farmer < ActiveRecord::Base
       "#{self.dog} is watching TV. There is a \nparakeet on a branch. #{self.dog} really \nwants to touch it!",
       "#{self.dog} is starting to look a bit dirty. \nTime for a bath!"
     ]
+    .sample
   end
 
   def livestocks_hash

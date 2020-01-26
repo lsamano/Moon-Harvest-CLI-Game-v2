@@ -678,46 +678,53 @@ class CommandLineInterface
 
   def go_to_home
     game_header("                    HOME")
-    notice(farmer.dog_flavor_text_array.sample, :magenta)
+    notice(farmer.dog_flavor_text, :magenta)
 
     choice = select_prompt("What would you like to do?", home_options)
     case choice
     when "Sleep"
-      farmer.next_day
       sleep_sequence
       game_menu
     when "Rename..."
-      choice = select_prompt("Who would you like to rename?", ["#{farmer.name}", "#{farmer.dog}", "Nevermind"])
-      case choice
-      when "#{farmer.name}"
-        new_name = naming_prompt("What is my new name?")
-        if Farmer.find_by(name: new_name)
-          self.warning_message = "A Farmer by that name already exists! \nPlease choose a different name."
-          return go_to_home
-        else
-          farmer.update(name: new_name)
-          self.success_message = "You've been renamed!"
-          return go_to_home
-        end
-      when "#{farmer.dog}"
-        new_name = naming_prompt("What is your dog's new name?")
-        farmer.update(dog: new_name)
-        self.success_message = "Your dog has been renamed!"
-        return go_to_home
-      when "Nevermind"
-        go_to_home
-      end
+      rename_menu
     when "Go Outside"
       game_menu
     end
   end
 
   def sleep_sequence
+    farmer.next_day
     system("clear")
     notice("🌕 You fell asleep...", :light_blue)
     sleep(1.seconds)
     notice("☀️  Good morning!", :light_yellow)
     sleep(1.seconds)
+  end
+
+  def rename_menu
+    choice = select_prompt("Who would you like to rename?", ["#{farmer.name}", "#{farmer.dog}", "Nevermind"])
+    case choice
+    when "#{farmer.name}"
+      new_name = naming_prompt("What is your new name?")
+      if new_name == farmer.name
+        self.warning_message = "That's already your name! \nGuess you changed your mind."
+        return go_to_home
+      elsif Farmer.find_by(name: new_name)
+        self.warning_message = "A Farmer by that name already exists! \nPlease choose a different name."
+        return go_to_home
+      else
+        farmer.update(name: new_name)
+        self.success_message = "You've been renamed!"
+        return go_to_home
+      end
+    when "#{farmer.dog}"
+      new_name = naming_prompt("What is your dog's new name?")
+      farmer.update(dog: new_name)
+      self.success_message = "Your dog has been renamed!"
+      return go_to_home
+    when "Nevermind"
+      return go_to_home
+    end
   end
 
   def exit_message
