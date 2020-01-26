@@ -4,7 +4,7 @@ class CommandLineInterface
   # Reusable TTY Prompts
   def select_prompt(string, array_of_choices)
     prompt = TTY::Prompt.new
-    prompt.select(string, array_of_choices)
+    prompt.select(string, array_of_choices, filter: true)
   end
 
   def naming_prompt(string)
@@ -51,14 +51,14 @@ class CommandLineInterface
   end
 
   def start_audio(string)
-    # change to true to turn on BGM, along with line 111
+    # change to true to turn on BGM, along with line 61
     if false
       pid = fork{ exec 'afplay', string }
     end
   end
 
   def stop_audio
-    # change to true to turn on BGM, along with line 104
+    # change to true to turn on BGM, along with line 54
     if false
       pid = fork{ exec "killall", 'afplay' }
     end
@@ -82,16 +82,15 @@ class CommandLineInterface
   # Menu options
   def opening_menu_options
     if Farmer.all.empty?
-      ["New Game", "Exit"]
+      [ "New Game", "Exit" ]
     else
-      ["Load Game", "New Game", "Delete File", "Exit"]
+      [ "Load Game", "New Game", "Delete File", "Exit" ]
     end
   end
 
   # First/opening menu options
   def first_menu
     choice = select_prompt("", opening_menu_options)
-    #choice = choice.parameterize.underscore converts choice to snake_case
     case choice
     when "New Game"
       character_creation
@@ -223,12 +222,9 @@ class CommandLineInterface
     when "winter"
       ui_season_text = "⛄️ Winter"
     end
-    puts ""
     puts "Farmer #{farmer.name}".bold.colorize(:color => :black, :background => :light_white)
-    puts ui_season_text
-    puts "🌖 Day #{farmer.day}"
+    puts "#{ui_season_text}, Day #{farmer.day}"
     puts "💰 #{farmer.money} G"
-    puts ""
   end
 
   # Reusable game header, also prints warning/success messages
@@ -236,7 +232,7 @@ class CommandLineInterface
     system("clear")
     print_status
     puts "==============================================="
-    puts place
+    puts "                   #{place}"
     puts "==============================================="
     if self.warning_message
       notice(self.warning_message, :red)
@@ -253,7 +249,7 @@ class CommandLineInterface
 
   # Main menu prompt
   def game_menu
-    game_header("                 YOUR FARM")
+    game_header("YOUR FARM")
     choice = select_prompt("MAIN MENU", main_menu_options)
     case choice
     when "Inventory"
@@ -275,7 +271,7 @@ class CommandLineInterface
   end
 
   def show_inventory
-    game_header("                   INVENTORY")
+    game_header("INVENTORY")
     unplanted_hash = farmer.seed_bag_count_hash(0)
     if unplanted_hash.any?
       rows = []
@@ -350,7 +346,7 @@ class CommandLineInterface
       puts "None."
       puts "-------------------------------------------"
     end
-    select_prompt("Press Enter to Exit.", ["Exit"])
+    select_prompt("Press Enter to Exit.", [ "Exit" ])
   end
 
   def field_options
@@ -380,7 +376,7 @@ class CommandLineInterface
   end
 
   def go_to_field
-    game_header("                    FIELD")
+    game_header("FIELD")
     print_planted_seeds
 
     # new prompt for plant, water, harvest, destroy
@@ -437,9 +433,9 @@ class CommandLineInterface
   end
 
   def go_to_barn
-    game_header("                      BARN")
+    game_header("BARN")
     # List of animals and their Status
-    #Prompt to choose an animal or exit
+    # Prompt to choose an animal or exit
     if farmer.livestocks_hash.empty?
       notice("You have no livestock!",:red)
       barn_options = ["Exit"]
@@ -458,9 +454,9 @@ class CommandLineInterface
   end
 
   def pick_an_animal
-    game_header("                      BARN")
+    game_header("BARN")
     print_livestocks
-    choice = select_prompt("What would you like to do to #{chosen_livestock.name}?", ["Brush", "Feed", "Milk/Shear", "Go Back"])
+    choice = select_prompt("What would you like to do with #{chosen_livestock.name}?", ["Brush", "Feed", "Milk/Shear", "Go Back"])
     case choice
     when "Brush"
       animal_care("brush")
@@ -525,11 +521,11 @@ class CommandLineInterface
   end
 
   def go_to_market
-    game_header("                 MARKETPLACE")
+    game_header("MARKETPLACE")
     choice = select_prompt("Vendor: What would you like to do?", ["Buy Seeds", "Sell Crops", "Sell Animal Products", "About that Dog Bed...", "Go To Farm", "Go To Town"])
     case choice
     when "Buy Seeds"
-      #list of seeds and prices
+      # list of seeds and prices
       puts "==========================================="
       puts ""
       rows = []
@@ -546,7 +542,7 @@ class CommandLineInterface
       puts market_table
       puts ""
 
-      #new prompt selecting from list of seeds to buy
+      # new prompt selecting from list of seeds to buy
       choice = select_prompt("Vendor: What would you like to purchase?", crop_options)
       if choice == "Exit"
         go_to_market
@@ -600,10 +596,10 @@ class CommandLineInterface
       go_to_market
 
     when "About that Dog Bed..."
-      game_header("                 MARKETPLACE")
+      game_header("MARKETPLACE")
       sentence = "Vendor: Oh, that thing? It costs " + "10,000".bold + " G."
       notice(sentence, :magenta)
-      choice = select_prompt("Do you want to buy it?", ["Yes", "No"])
+      choice = select_prompt("Do you want to buy it?", [ "Yes", "No" ])
       case choice
       when "Yes"
         if farmer.money < 10000
@@ -652,15 +648,17 @@ class CommandLineInterface
     end
   end
 
+  def town_choices
+    [ "Speak to Clara", "Go To Market", "Back to Farm" ]
+  end
+
   def go_to_town
-    game_header("                    TOWN")
+    game_header("TOWN")
     notice("Welcome to Prospera Town!", :yellow)
-
-    choice = select_prompt("What would you like to do?", ["Speak to Clara", "Go To Market", "Back to Farm"])
-
+    choice = select_prompt("What would you like to do?", town_choices)
     case choice
     when "Speak to Clara"
-      system("clear")
+      game_header("CLARA")
       string = "\nYou say hello to Clara. \nShe glances up and gives you a slight \nnod before returning to her notebook.\n "
       notice(string)
       select_prompt("Press Enter to Exit.", ["Exit"])
@@ -677,9 +675,8 @@ class CommandLineInterface
   end
 
   def go_to_home
-    game_header("                    HOME")
+    game_header("HOME")
     notice(farmer.dog_flavor_text, :magenta)
-
     choice = select_prompt("What would you like to do?", home_options)
     case choice
     when "Sleep"
@@ -708,19 +705,21 @@ class CommandLineInterface
       new_name = naming_prompt("What is your new name?")
       if new_name == farmer.name
         self.warning_message = "That's already your name! \nGuess you changed your mind."
-        return go_to_home
       elsif Farmer.find_by(name: new_name)
         self.warning_message = "A Farmer by that name already exists! \nPlease choose a different name."
-        return go_to_home
       else
         farmer.update(name: new_name)
         self.success_message = "You've been renamed!"
-        return go_to_home
       end
+      return go_to_home
     when "#{farmer.dog}"
       new_name = naming_prompt("What is your dog's new name?")
-      farmer.update(dog: new_name)
-      self.success_message = "Your dog has been renamed!"
+      if new_name == farmer.dog
+        self.warning_message = "That's already their name! \nGuess you changed your mind."
+      else
+        farmer.update(dog: new_name)
+        self.success_message = "Your dog has been renamed!"
+      end
       return go_to_home
     when "Nevermind"
       return go_to_home
