@@ -70,10 +70,11 @@ class Farmer < ActiveRecord::Base
   end
 
   def product_inventory_hash
-    # product_array = self.products.where("farmer_id = ?", self.id)
+    # The line below is done to query the database again for the newest data
+    product_array = self.products.where("farmer_id = ?", self.id)
     #.map{ |i| i.livestock.animal.product_name}
 
-    self.products.each_with_object(Hash.new(0)) do |product_instance, inv_hash|
+    product_array.each_with_object(Hash.new(0)) do |product_instance, inv_hash|
       inv_hash[product_instance.livestock.animal.product_name] += 1
     end
   end
@@ -102,6 +103,35 @@ class Farmer < ActiveRecord::Base
   # returns array of crop_type instances that match the farmer's season
   def crops_in_season
     CropType.where("season = ?", self.season)
+  end
+
+  def next_day
+    # increase day
+    self.increment!(:day)
+
+    # Crops updated
+    planted_seed_array = self.seed_bags.where("planted = ?", 1)
+    planted_seed_array.each do |seed_bag|
+      if seed_bag.watered == 1
+        seed_bag.increment!(:growth)
+        seed_bag.update(watered: 0)
+      end
+      if seed_bag.growth >= seed_bag.crop_type.days_to_grow
+        seed_bag.update(ripe: 1)
+      end
+    end
+
+    # Animals updated
+    livestock_array = self.livestocks
+    livestock_array.each do |livestock|
+      if livestock.day_counter_for_product < livestock.animal.frequency
+        livestock.increment!(:day_counter_for_product)
+      end
+      if livestock.fed? && livestock.brushed? && livestock.love < 10
+        livestock.increment!(:love)
+      end
+      livestock.update(fed: 0, brushed: 0)
+    end
   end
 
   def buy_seed_bag(crop_type)

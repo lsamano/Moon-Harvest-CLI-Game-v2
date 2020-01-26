@@ -552,11 +552,9 @@ class CommandLineInterface
         go_to_market
       else
         chosen_bag = CropType.find_by(crop_name: choice)
-        # Checks if the farmer has enough money to make the purchase.
+        # Checks if the farmer has enough money to make the purchase
         if chosen_bag.buy_price > farmer.money
-          # system("clear")
           self.warning_message = "Vendor: You don't have enough money to buy that!"
-          # sleep(2.seconds)
           go_to_market
         else
           confirmation = select_prompt("Buy one bag of #{choice}?", ["Yes", "No"])
@@ -685,36 +683,8 @@ class CommandLineInterface
     choice = select_prompt("What would you like to do?", home_options)
     case choice
     when "Sleep"
-      farmer.increment!(:day)
-      planted_seed_array = farmer.seed_bags.where("planted = ?", 1)
-      planted_seed_array.each do |seed_bag|
-        if seed_bag.watered == 1
-          seed_bag.increment!(:growth)
-          seed_bag.update(watered: 0)
-        end
-        if seed_bag.growth >= seed_bag.crop_type.days_to_grow
-          seed_bag.update(ripe: 1)
-        end
-      end
-
-      # Animals updated
-      livestock_array = farmer.livestocks
-      livestock_array.each do |livestock|
-        if livestock.day_counter_for_product < livestock.animal.frequency
-          livestock.increment!(:day_counter_for_product)
-        end
-        if livestock.fed? && livestock.brushed? && livestock.love < 10
-          livestock.increment!(:love)
-        end
-        livestock.update(fed: 0)
-        livestock.update(brushed: 0)
-      end
-
-      system("clear")
-      notice("🌕 You fell asleep...", :light_blue)
-      sleep(1.seconds)
-      notice("☀️  Good morning!", :light_yellow)
-      sleep(1.seconds)
+      farmer.next_day
+      sleep_sequence
       game_menu
     when "Rename..."
       choice = select_prompt("Who would you like to rename?", ["#{farmer.name}", "#{farmer.dog}", "Nevermind"])
@@ -740,6 +710,14 @@ class CommandLineInterface
     when "Go Outside"
       game_menu
     end
+  end
+
+  def sleep_sequence
+    system("clear")
+    notice("🌕 You fell asleep...", :light_blue)
+    sleep(1.seconds)
+    notice("☀️  Good morning!", :light_yellow)
+    sleep(1.seconds)
   end
 
   def exit_message
