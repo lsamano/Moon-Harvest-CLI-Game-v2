@@ -91,6 +91,27 @@ class Farmer < ActiveRecord::Base
     CropType.where("season = ?", self.season)
   end
 
+  # determines date via total days past
+  def date
+    calc_date = self.day % 30
+    calc_date == 0 ? 30 : calc_date
+  end
+
+  # determines season via total days past
+  def season
+    number = ((self.day - 1) / 30) % 4
+    case number
+    when 0
+      return "spring"
+    when 1
+      return "summer"
+    when 2
+      return "fall"
+    when 3
+      return "winter"
+    end
+  end
+
   def next_day
     # increase day
     self.increment!(:day)

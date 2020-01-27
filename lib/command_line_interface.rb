@@ -223,7 +223,7 @@ class CommandLineInterface
       ui_season_text = "⛄️ Winter"
     end
     puts "Farmer #{farmer.name}".bold.colorize(:color => :black, :background => :light_white)
-    puts "#{ui_season_text}, Day #{farmer.day}"
+    puts "#{ui_season_text}, Day #{farmer.date}"
     puts "💰 #{farmer.money} G"
   end
 
@@ -693,9 +693,9 @@ class CommandLineInterface
     farmer.next_day
     system("clear")
     notice("🌕 You fell asleep...", :light_blue)
-    sleep(1.seconds)
+    # sleep(1.seconds)
     notice("☀️  Good morning!", :light_yellow)
-    sleep(1.seconds)
+    # sleep(1.seconds)
   end
 
   def rename_menu

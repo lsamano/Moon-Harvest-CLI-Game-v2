@@ -37,9 +37,6 @@ ActiveRecord::Schema.define(version: 2020_01_27_195426) do
   create_table "farmers", force: :cascade do |t|
     t.string "name"
     t.integer "day", default: 1
-    t.string "dog"
-    t.string "season", default: "fall"
-    t.integer "year", default: 1
     t.integer "money", default: 2000
   end
 
