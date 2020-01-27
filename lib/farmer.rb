@@ -4,6 +4,7 @@ class Farmer < ActiveRecord::Base
   has_many :livestocks, :dependent => :destroy
   has_many :products, :dependent => :destroy
   has_many :animals, through: :livestocks
+  has_one :dog
 
   # Hash containing planting actions
   def planting
@@ -76,21 +77,6 @@ class Farmer < ActiveRecord::Base
     name_array.each_with_object(Hash.new(0)) do |product_name, inv_hash|
       inv_hash[product_name] += 1
     end
-  end
-
-  def dog_flavor_text
-    [
-      "#{self.dog} is quietly snoring on your bed...",
-      "Oh no! #{self.dog} found their way into the \nfridge and ate all of the string cheese!",
-      "#{self.dog} seems to have constructed their \nown fort, made entirely of your boots.",
-      "#{self.dog} excitedly jumps at you, barking. \nWelcome home!",
-      "#{self.dog} is watching the Galactic News Network \non TV. Space Pirates appear to wreaking \nhavoc again...",
-      "Gasp! #{self.dog} is missing! \n... Oh wait, they're right there on the sofa.",
-      "#{self.dog} is playing with their favorite toy.\n It squeaks as they gnaw on it.",
-      "#{self.dog} is watching TV. There is a \nparakeet on a branch. #{self.dog} really \nwants to touch it!",
-      "#{self.dog} is starting to look a bit dirty. \nTime for a bath!"
-    ]
-    .sample
   end
 
   def livestocks_hash

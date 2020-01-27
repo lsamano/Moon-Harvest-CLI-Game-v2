@@ -158,19 +158,19 @@ class CommandLineInterface
     notice("Do you want to take 'em?".bold)
     choice = select_prompt("", ["Yes"])
     dog_name = naming_prompt("Give your new dog a name.")
-    farmer.update(dog: dog_name)
-    notice("#{farmer.dog} looks at you with curious eyes...")
+    Dog.create(name: dog_name, farmer: farmer)
+    notice("#{farmer.dog.name} looks at you with curious eyes...")
     gets
     notice("Your space farming life with \nyour new companion starts now!".bold)
     gets
     system("clear")
     notice("... One week later...")
     gets
-    notice("#{farmer.dog} is adjusting well to your farm life. \n\nHowever...")
+    notice("#{farmer.dog.name} is adjusting well to your farm life. \n\nHowever...")
     gets
-    notice("It would be nice if you could buy #{farmer.dog} their own bed.".bold, :light_red)
+    notice("It would be nice if you could buy #{farmer.dog.name} their own bed.".bold, :light_red)
     gets
-    notice("One of the vendors at the marketplace is \nselling a dog bed for 10,000 G. \n\nMaybe you can buy it for #{farmer.dog}...?")
+    notice("One of the vendors at the marketplace is \nselling a dog bed for 10,000 G. \n\nMaybe you can buy it for #{farmer.dog.name}...?")
     gets
     system("clear")
     notice("You decide to save up 10,000 G to buy a dog bed!".bold)
@@ -350,7 +350,7 @@ class CommandLineInterface
   end
 
   def field_options
-    [ "Water", "Plant", "Harvest", "Destroy", "Exit" ]
+    [ "Water", "Plant", "Harvest", "Destroy", "Inventory", "Exit" ]
   end
 
   # list of planted crops and their watered status
@@ -676,7 +676,7 @@ class CommandLineInterface
 
   def go_to_home
     game_header("HOME")
-    notice(farmer.dog_flavor_text, :magenta)
+    notice(farmer.dog.flavor_text, :magenta)
     choice = select_prompt("What would you like to do?", home_options)
     case choice
     when "Sleep"
@@ -699,7 +699,7 @@ class CommandLineInterface
   end
 
   def rename_menu
-    choice = select_prompt("Who would you like to rename?", ["#{farmer.name}", "#{farmer.dog}", "Nevermind"])
+    choice = select_prompt("Who would you like to rename?", ["#{farmer.name}", "#{farmer.dog.name}", "Nevermind"])
     case choice
     when "#{farmer.name}"
       new_name = naming_prompt("What is your new name?")
@@ -712,12 +712,12 @@ class CommandLineInterface
         self.success_message = "You've been renamed!"
       end
       return go_to_home
-    when "#{farmer.dog}"
+    when "#{farmer.dog.name}"
       new_name = naming_prompt("What is your dog's new name?")
-      if new_name == farmer.dog
+      if new_name == farmer.dog.name
         self.warning_message = "That's already their name! \nGuess you changed your mind."
       else
-        farmer.update(dog: new_name)
+        farmer.dog.update(name: new_name)
         self.success_message = "Your dog has been renamed!"
       end
       return go_to_home
@@ -740,7 +740,7 @@ class CommandLineInterface
     system("clear")
     farmer.money -= 10000
     farmer.save
-    notice("Yay! You bought a dog bed for #{farmer.dog}!".bold, :light_green)
+    notice("Yay! You bought a dog bed for #{farmer.dog.name}!".bold, :light_green)
     notice("                     FIN".bold, :light_magenta)
     puts "Press enter to exit.".colorize(:white)
     gets
