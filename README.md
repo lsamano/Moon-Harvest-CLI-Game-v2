@@ -36,6 +36,7 @@ You are a farmer on the moon. One day, at the local Marketplace, one of the vend
 - Enjoy randomized flavor text interactions with your dog
 - Rename yourself or your dog at any time
 - Check your inventory at any time
+- (*New!*) Choose a game difficulty; Easy, Medium, or Hard
 
 ## Credits
 This game is heavily inspired by the Harvest Moon / Story of Seasons game series (known in Japan as Bokujō Monogatari) by Marvelous Entertainment.

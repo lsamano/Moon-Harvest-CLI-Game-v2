@@ -693,9 +693,9 @@ class CommandLineInterface
     farmer.next_day
     system("clear")
     notice("🌕 You fell asleep...", :light_blue)
-    # sleep(1.seconds)
+    sleep(0.5)
     notice("☀️  Good morning!", :light_yellow)
-    # sleep(1.seconds)
+    sleep(0.8)
   end
 
   def rename_menu
