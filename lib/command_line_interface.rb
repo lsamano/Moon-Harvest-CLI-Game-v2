@@ -26,20 +26,20 @@ class CommandLineInterface
   # Method for farming actions that affect the field
   def farming(action)
     hash = farmer.seed_bag_hash{action[:search]}
+    # checks if there is anything to take the action on
     if hash.empty?
       self.warning_message = action[:empty]
       go_to_field
     else
-      if action == farmer.planting
-        puts "SEED BAGS IN INVENTORY".colorize(:yellow)
-        farmer.brief_inventory
+      # checks if the action requires a printed list
+      if action[:needs_brief_list]
+        action[:print_brief_list].call
       end
-      choice = select_prompt(action[:choose], hash)
-      if action == farmer.harvesting
-        choice.update(planted: 0)
-      end
-      choice.update(action[:action])
-      self.success_message = action[:done]
+      # prompt for selection of crop/seed bag
+      selected_seed_bag = select_prompt(action[:choose], hash)
+      # take action and set success message
+      message = action[:take_action].call(selected_seed_bag)
+      self.success_message = message
       go_to_field
     end
   end
@@ -379,7 +379,7 @@ class CommandLineInterface
     game_header("FIELD")
     print_planted_seeds
 
-    # new prompt for plant, water, harvest, destroy
+    # prompt for plant, water, harvest, destroy
     choice = select_prompt("What would you like to do?", field_options)
     case choice
     when "Plant"
@@ -389,39 +389,7 @@ class CommandLineInterface
     when "Harvest"
       farming(farmer.harvesting)
     when "Destroy"
-      planted_array = farmer.seed_bags.where("planted = ?", 1)
-
-      if planted_array.empty?
-        self.warning_message = "There's nothing in your field to destroy!"
-        go_to_field
-      else
-        #puts brief numbered list of field crops
-        planted_array.each_with_index do |planted_seed_bag, index|
-          puts "#{index+1}. #{planted_seed_bag.crop_type.crop_name}     Growth: #{(planted_seed_bag.growth/planted_seed_bag.crop_type.days_to_grow.to_f*100).round(1)}%"
-        end
-
-        planted_hash = farmer.seed_bag_hash{planted_array}
-        #planted_array.each_with_object({}).with_index{ |(seed_bag, hash), index| hash["#{index+1}. #{seed_bag.crop_type.crop_name}"] = seed_bag}
-        choice = select_prompt("What would you like to destroy?", planted_hash)
-        puts "-------------------------------------------"
-        puts ""
-        puts "This crop?"
-        puts ""
-        puts "#{choice.crop_type.crop_name}".upcase.bold
-        puts "Growth: #{(choice.growth/choice.crop_type.days_to_grow.to_f*100).round(1)}%"
-        puts ""
-        confirmation = select_prompt("Are you absolutely sure you want to destroy your #{choice.crop_type.crop_name}?\nWARNING: This CANNOT be undone!", ["Destroy it!", "Nevermind"])
-        case confirmation
-        when "Destroy it!"
-          choice.destroy
-          system("clear")
-          notice("The crop was destroyed...")
-          sleep(2.seconds)
-          go_to_field
-        when "Nevermind"
-          go_to_field
-        end
-      end
+      farming(farmer.destroying)
     when "Exit"
       game_menu
     end
@@ -525,126 +493,140 @@ class CommandLineInterface
     choice = select_prompt("Vendor: What would you like to do?", ["Buy Seeds", "Sell Crops", "Sell Animal Products", "About that Dog Bed...", "Go To Farm", "Go To Town"])
     case choice
     when "Buy Seeds"
-      # list of seeds and prices
-      puts "==========================================="
-      puts ""
-      rows = []
-      farmer.crops_in_season.each do |crop_type|
-        one_row = []
-        one_row << "#{crop_type.crop_name}".upcase.bold
-        one_row << "#{crop_type.days_to_grow}".bold
-        one_row << "#{crop_type.buy_price}".bold + " G"
-        rows << one_row
-      end
-      market_table = Terminal::Table.new :title => "#{farmer.season.titleize} Crops on Sale".bold.colorize(:magenta), :headings => ['Name', 'Days to Grow', 'Price'], :rows => rows
-      market_table.align_column(1, :center)
-      market_table.align_column(2, :center)
-      puts market_table
-      puts ""
-
-      # new prompt selecting from list of seeds to buy
-      choice = select_prompt("Vendor: What would you like to purchase?", crop_options)
-      if choice == "Exit"
-        go_to_market
-      else
-        chosen_bag = CropType.find_by(crop_name: choice)
-        # Checks if the farmer has enough money to make the purchase
-        if chosen_bag.buy_price > farmer.money
-          self.warning_message = "Vendor: You don't have enough money to buy that!"
-          go_to_market
-        else
-          confirmation = select_prompt("Buy one bag of #{choice}?", ["Yes", "No"])
-          case confirmation
-          when "Yes"
-            new_crop = farmer.buy_seed_bag(chosen_bag)
-            farmer.money -= chosen_bag.buy_price
-            farmer.save
-            self.success_message = "You bought a bag of #{choice} seeds!"
-            go_to_market
-          when "No"
-            system("clear")
-            go_to_market
-          end
-        end
-      end
-
+      buy_seeds_option
     when "Sell Crops"
-      harvested_hash = farmer.seed_bag_count_hash(1)
-      if harvested_hash.none?
-        self.warning_message = "Vendor: Doesn't look like you have any crops \nto sell me."
-      else
-        total = 0
-        harvested_hash.each do |crop_name, amount|
-          crop = CropType.find_by(crop_name: crop_name)
-          subtotal = crop.sell_price * amount
-          puts "#{crop_name}".upcase.bold.colorize(:magenta) + " x #{amount} = #{subtotal} G"
-          total += subtotal
-        end
-        puts "TOTAL: #{total} G".bold.colorize(:light_green)
-        choice = select_prompt("Would you like to ship all your crops for #{total} G?", ["Yes, sell them all!", "No"])
-        case choice
-        when "Yes, sell them all!"
-          to_sell = farmer.seed_bags.where("planted = ?", 0).where("harvested = ?", 1)
-          to_sell.each do |seed_bag|
-            seed_bag.destroy
-          end
-          farmer.money += total
-          farmer.save
-          self.success_message = "You sold all your crops for a profit! \nYou now have #{farmer.money} G."
-        end
-      end
-      go_to_market
-
+      sell_crops_option
     when "About that Dog Bed..."
-      game_header("MARKETPLACE")
-      sentence = "Vendor: Oh, that thing? It costs " + "10,000".bold + " G."
-      notice(sentence, :magenta)
-      choice = select_prompt("Do you want to buy it?", [ "Yes", "No" ])
-      case choice
-      when "Yes"
-        if farmer.money < 10000
-          self.warning_message = "Vendor: Sorry, but you don't have enough cash! \nCome back when you have 10,000 G."
-          go_to_market
-        else
-          game_finish
-        end
-      when "No"
-        go_to_market
-      end
+      dog_bed_option
     when "Sell Animal Products"
-      if farmer.product_inventory_hash.empty?
-        self.warning_message = "Vendor: Doesn't look like you have anything \nto sell me."
-      else
-        total = 0
-        product_array = farmer.products.where("farmer_id = ?", farmer.id)
-        new_product_hash = product_array.each_with_object(Hash.new(0)) do |product_instance, inv_hash|
-          inv_hash[product_instance.livestock.animal.product_name] += 1
-        end
-        # binding.pry
-        new_product_hash.each do |product_name, amount|
-          animal = Animal.find_by(product_name: product_name)
-          subtotal = animal.sell_price * amount
-          puts "#{product_name}".upcase.bold.colorize(:magenta) + " x #{amount} = #{subtotal} G"
-          total += subtotal
-        end
-        puts "TOTAL: #{total} G".bold.colorize(:light_green)
-        choice = select_prompt("Would you like to sell all of your animal products for #{total} G?", ["Yes, sell them all!", "No"])
-        case choice
-        when "Yes, sell them all!"
-          product_array.each do |product_instance|
-            # binding.pry
-            product_instance.destroy
-          end
-          farmer.money += total
-          farmer.save
-          self.success_message = "You sold all your animal products for a profit! \nYou now have #{farmer.money} G."
-        end
-      end
-      go_to_market
+      sell_products_option
     when "Go To Farm"
       game_menu
     when "Go To Town"
       go_to_town
+    end
+  end
+
+  def print_seeds_on_sale
+    # list of seeds and prices
+    puts "==========================================="
+    puts ""
+    rows = []
+    farmer.crops_in_season.each do |crop_type|
+      one_row = []
+      one_row << "#{crop_type.crop_name}".upcase.bold
+      one_row << "#{crop_type.days_to_grow}".bold
+      one_row << "#{crop_type.buy_price}".bold + " G"
+      rows << one_row
+    end
+    market_table = Terminal::Table.new :title => "#{farmer.season.titleize} Crops on Sale".bold.colorize(:magenta), :headings => ['Name', 'Days to Grow', 'Price'], :rows => rows
+    market_table.align_column(1, :center)
+    market_table.align_column(2, :center)
+    puts market_table
+    puts ""
+  end
+
+  def buy_seeds_option
+    print_seeds_on_sale
+    # new prompt selecting from list of seeds to buy
+    choice = select_prompt("Vendor: What would you like to purchase?", crop_options)
+    if choice == "Exit"
+      go_to_market
+    else
+      chosen_bag = CropType.find_by(crop_name: choice)
+      # Checks if the farmer has enough money to make the purchase
+      if chosen_bag.buy_price > farmer.money
+        self.warning_message = "Vendor: You don't have enough money to buy that!"
+        go_to_market
+      else
+        confirmation = select_prompt("Buy one bag of #{choice}?", ["Yes", "No"])
+        case confirmation
+        when "Yes"
+          farmer.buy_seed_bag(chosen_bag)
+          self.success_message = "You bought a bag of #{choice} seeds!"
+          go_to_market
+        when "No"
+          go_to_market
+        end
+      end
+    end
+  end
+
+  def sell_crops_option
+    harvested_hash = farmer.seed_bag_count_hash(1)
+    if harvested_hash.none?
+      self.warning_message = "Vendor: Doesn't look like you have any crops \nto sell me."
+    else
+      total = 0
+      harvested_hash.each do |crop_name, amount|
+        crop = CropType.find_by(crop_name: crop_name)
+        subtotal = crop.sell_price * amount
+        puts "#{crop_name}".upcase.bold.colorize(:magenta) + " x #{amount} = #{subtotal} G"
+        total += subtotal
+      end
+      puts "TOTAL: #{total} G".bold.colorize(:light_green)
+      choice = select_prompt("Would you like to ship all your crops for #{total} G?", ["Yes, sell them all!", "No"])
+      case choice
+      when "Yes, sell them all!"
+        to_sell = farmer.seed_bags.where("planted = ?", 0).where("harvested = ?", 1)
+        to_sell.each do |seed_bag|
+          seed_bag.destroy
+        end
+        farmer.money += total
+        farmer.save
+        self.success_message = "You sold all your crops for a profit! \nYou now have #{farmer.money} G."
+      end
+    end
+    go_to_market
+  end
+
+  def sell_products_option
+    if farmer.product_inventory_hash.empty?
+      self.warning_message = "Vendor: Doesn't look like you have anything \nto sell me."
+    else
+      total = 0
+      product_array = farmer.products.where("farmer_id = ?", farmer.id)
+      new_product_hash = product_array.each_with_object(Hash.new(0)) do |product_instance, inv_hash|
+        inv_hash[product_instance.livestock.animal.product_name] += 1
+      end
+      # binding.pry
+      new_product_hash.each do |product_name, amount|
+        animal = Animal.find_by(product_name: product_name)
+        subtotal = animal.sell_price * amount
+        puts "#{product_name}".upcase.bold.colorize(:magenta) + " x #{amount} = #{subtotal} G"
+        total += subtotal
+      end
+      puts "TOTAL: #{total} G".bold.colorize(:light_green)
+      choice = select_prompt("Would you like to sell all of your animal products for #{total} G?", ["Yes, sell them all!", "No"])
+      case choice
+      when "Yes, sell them all!"
+        product_array.each do |product_instance|
+          # binding.pry
+          product_instance.destroy
+        end
+        farmer.money += total
+        farmer.save
+        self.success_message = "You sold all your animal products for a profit! \nYou now have #{farmer.money} G."
+      end
+    end
+    go_to_market
+  end
+
+  def dog_bed_option
+    game_header("MARKETPLACE")
+    sentence = "Vendor: Oh, that thing? It costs " + "10,000".bold + " G."
+    notice(sentence, :magenta)
+    choice = select_prompt("Do you want to buy it?", [ "Yes", "No" ])
+    case choice
+    when "Yes"
+      if farmer.money < 10000
+        self.warning_message = "Vendor: Sorry, but you don't have enough cash! \nCome back when you have 10,000 G."
+        go_to_market
+      else
+        game_finish
+      end
+    when "No"
+      go_to_market
     end
   end
 
@@ -658,16 +640,20 @@ class CommandLineInterface
     choice = select_prompt("What would you like to do?", town_choices)
     case choice
     when "Speak to Clara"
-      game_header("CLARA")
-      string = "\nYou say hello to Clara. \nShe glances up and gives you a slight \nnod before returning to her notebook.\n "
-      notice(string)
-      select_prompt("Press Enter to Exit.", ["Exit"])
-      go_to_town
+      speak_to_clara
     when "Go To Market"
       go_to_market
     when "Back to Farm"
       game_menu
     end
+  end
+
+  def speak_to_clara
+    game_header("CLARA")
+    string = "\nYou say hello to Clara. \nShe glances up and gives you a slight \nnod before returning to her notebook.\n "
+    notice(string)
+    select_prompt("Press Enter to Exit.", ["Exit"])
+    go_to_town
   end
 
   def home_options
@@ -693,9 +679,9 @@ class CommandLineInterface
     farmer.next_day
     system("clear")
     notice("🌕 You fell asleep...", :light_blue)
-    # sleep(1.seconds)
+    sleep(0.5)
     notice("☀️  Good morning!", :light_yellow)
-    # sleep(1.seconds)
+    sleep(0.8)
   end
 
   def rename_menu
