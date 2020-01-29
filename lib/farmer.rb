@@ -13,7 +13,7 @@ class Farmer < ActiveRecord::Base
       empty: "You have no seeds you can plant!",
       choose: "Which seed would you like to plant?",
       done: "Planted!",
-      action: {planted: 1}
+      action: { planted: 1 }
     }
   end
 
@@ -24,7 +24,7 @@ class Farmer < ActiveRecord::Base
       empty: "You have no crops you can harvest right now!",
       choose: "What would you like to harvest?",
       done: "Harvested!",
-      action: {harvested: 1}
+      action: { harvested: 1 }
     }
   end
 
@@ -35,7 +35,7 @@ class Farmer < ActiveRecord::Base
       empty: "You have no crops that need to be watered!",
       choose: "Which crop would you like to water?",
       done: "Watered!",
-      action: {watered: 1}
+      action: { watered: 1 }
     }
   end
 
