@@ -130,7 +130,7 @@ class CommandLineInterface
       cow_name = naming_prompt("What's your cow's name?")
       sheep_name = naming_prompt("What's your sheep's name?")
       Livestock.create(animal_id: Animal.find_by(species: "cow").id, farmer_id: farmer.id, name: cow_name)
-      Livestock.create(animal_id: Animal.find_by(species: "sheep").id, name: sheep_name)
+      Livestock.create(animal_id: Animal.find_by(species: "sheep").id, farmer_id: farmer.id, name: sheep_name)
     when "Normal"
       cow_name = naming_prompt("What's your cow's name?")
       Livestock.create(animal_id: Animal.first.id, farmer_id: farmer.id, name: cow_name)
@@ -410,38 +410,52 @@ class CommandLineInterface
 
   def go_to_barn
     game_header("BARN")
-    # List of animals and their Status
-    # Prompt to choose an animal or exit
-    if farmer.livestocks_hash.empty?
+    livestocks_hash = farmer.livestocks_hash
+    if livestocks_hash.empty?
       notice("You have no livestock!",:red)
       barn_options = ["Exit"]
     else
+      # List of animals and their Status
       print_livestocks
       barn_options = ["Select Animal", "Exit"]
     end
+    # Prompt to choose an animal or exit
     choice = select_prompt("What would you like to do?", barn_options)
     case choice
     when "Select Animal"
-      self.chosen_livestock = select_prompt("Choose one of your livestock.", farmer.livestocks_hash)
-      pick_an_animal
+      livestocks_hash["Exit"] = "Exit"
+      selection = select_prompt("Choose one of your livestock.", livestocks_hash)
+      if selection == "Exit"
+        return go_to_barn
+      else
+        self.chosen_livestock = selection
+        picked_an_animal
+      end
     when "Exit"
       game_menu
     end
   end
 
-  def pick_an_animal
+  def animal_care_options
+    ["Brush", "Feed", "#{chosen_livestock.animal.action_word.titleize}", "Go Back"]
+  end
+
+  def picked_an_animal
     game_header("BARN")
     print_livestocks
-    choice = select_prompt("What would you like to do with #{chosen_livestock.name}?", ["Brush", "Feed", "Milk/Shear", "Go Back"])
+    choice = select_prompt(
+      "What would you like to do with #{chosen_livestock.name}?",
+      animal_care_options
+    )
     case choice
     when "Brush"
       animal_care("brush")
     when "Feed"
       animal_care("feed")
-    when "Milk/Shear"
-      animal_care("get product")
     when "Go Back"
       go_to_barn
+    else
+      animal_care("get product")
     end
   end
 
@@ -474,19 +488,19 @@ class CommandLineInterface
     when "brush"
       message = chosen_livestock.get_brushed
       self.success_message = message
-      pick_an_animal
+      picked_an_animal
     when "feed"
       message = chosen_livestock.get_fed
       self.success_message = message
-      pick_an_animal
+      picked_an_animal
     when "get product"
       if chosen_livestock.day_counter_for_product < chosen_livestock.animal.frequency
         self.warning_message = "#{chosen_livestock.name} is not ready for you to do that!"
-        return pick_an_animal
+        return picked_an_animal
       else
         message = chosen_livestock.produce_product
         self.success_message = message
-        return pick_an_animal
+        return picked_an_animal
       end
     end
   end

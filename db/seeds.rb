@@ -14,14 +14,16 @@ cow = Animal.create(
   product_name: "milk",
   sell_price: 400,
   buy_price: 6000,
-  frequency: 1
+  frequency: 1,
+  action_word: "milk"
   )
 sheep = Animal.create(
   species: "sheep",
   product_name: "wool",
   sell_price: 1000,
   buy_price: 4000,
-  frequency: 3
+  frequency: 3,
+  action_word: "shear"
   )
 
 ######################################################
