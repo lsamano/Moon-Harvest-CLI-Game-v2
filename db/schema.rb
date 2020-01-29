@@ -17,6 +17,7 @@ ActiveRecord::Schema.define(version: 2020_01_27_195426) do
     t.string "product_name"
     t.integer "frequency"
     t.integer "sell_price"
+    t.integer "buy_price"
   end
 
   create_table "crop_types", force: :cascade do |t|

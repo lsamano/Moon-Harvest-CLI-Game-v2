@@ -470,30 +470,25 @@ class CommandLineInterface
   end
 
   def animal_care(action)
-    if action == "brush"
-      chosen_livestock.update(brushed: 1)
-      self.success_message = "You brushed #{chosen_livestock.name}! They seem to like it."
+    case action
+    when "brush"
+      message = chosen_livestock.get_brushed
+      self.success_message = message
       pick_an_animal
-    elsif action == "feed"
-      chosen_livestock.update(fed: 1)
-      self.success_message = "You fed #{chosen_livestock.name}! They seem to like it."
+    when "feed"
+      message = chosen_livestock.get_fed
+      self.success_message = message
       pick_an_animal
-    elsif action == "get product"
+    when "get product"
       if chosen_livestock.day_counter_for_product < chosen_livestock.animal.frequency
         self.warning_message = "#{chosen_livestock.name} is not ready for you to do that!"
         return pick_an_animal
       else
-        Product.create(livestock_id: chosen_livestock.id, farmer_id: farmer.id)
-        chosen_livestock.update(day_counter_for_product: 0)
-        if chosen_livestock.animal.species == "cow"
-          self.success_message = "You milked #{chosen_livestock.name}!"
-        elsif chosen_livestock.animal.species == "sheep"
-          self.success_message = "You sheared #{chosen_livestock.name}'s wool!"
-        end
+        message = chosen_livestock.produce_product
+        self.success_message = message
         return pick_an_animal
       end
     end
-
   end
 
   def go_to_market
@@ -638,7 +633,7 @@ class CommandLineInterface
   end
 
   def town_choices
-    [ "Speak to Clara", "Go To Market", "Back to Farm" ]
+    [ "Speak to Clara", "Go To Market", "Go To Bellita's Ranch", "Back to Farm" ]
   end
 
   def go_to_town
@@ -650,6 +645,8 @@ class CommandLineInterface
       speak_to_clara
     when "Go To Market"
       go_to_market
+    when "Go To Bellita's Ranch"
+      go_to_ranch
     when "Back to Farm"
       game_menu
     end
@@ -661,6 +658,45 @@ class CommandLineInterface
     notice(string)
     select_prompt("Press Enter to Exit.", ["Exit"])
     go_to_town
+  end
+
+  def go_to_ranch
+    game_header("RANCH")
+    string = "You greet Bellita, but she's busy giving \nher cow a good brushing."
+    notice(string)
+    choice = select_prompt("What would you like to do?", ["Buy an Animal", "Go Back"])
+    case choice
+    when "Go Back"
+      return go_to_town
+    when "Buy an Animal"
+      return buy_livestock_menu
+    end
+  end
+
+  def animal_buy_table
+    animal_hash = Animal.all.each_with_object({}) do |animal, hash|
+      hash["#{animal.species.titleize} (#{animal.buy_price} G)"] = animal
+    end
+    animal_hash["Nevermind"] = "Nevermind"
+    return animal_hash
+  end
+
+  def buy_livestock_menu
+    game_header("RANCH")
+    string = "Oh yeah? My sweet babies don't come cheap.\nA cow is worth 6000 G and a sheep is 4000 G."
+    notice(string)
+    choice = select_prompt("Which do you want?", animal_buy_table)
+    if choice == "Nevermind"
+      return go_to_ranch
+    elsif self.farmer.money < choice.buy_price
+      self.warning_message = "You don't have enough to buy them!"
+      return go_to_ranch
+    else
+      name_given = naming_prompt("Please name your new #{choice.species}.")
+      farmer.buy_livestock(choice, name_given)
+      self.success_message = "You bought a new #{choice.species} \nand named them #{name_given}!"
+      return go_to_ranch
+    end
   end
 
   def home_options

@@ -195,9 +195,18 @@ class Farmer < ActiveRecord::Base
 
   def buy_seed_bag(crop_type)
     SeedBag.create(
-      "farmer_id": self.id,
-      "crop_type_id": crop_type.id
+      farmer_id: self.id,
+      crop_type_id: crop_type.id
     )
     self.update(money: self.money - crop_type.buy_price)
+  end
+
+  def buy_livestock(animal, name)
+    Livestock.create(
+      name: name,
+      farmer_id: self.id,
+      animal_id: animal.id
+    )
+    self.update(money: self.money - animal.buy_price)
   end
 end

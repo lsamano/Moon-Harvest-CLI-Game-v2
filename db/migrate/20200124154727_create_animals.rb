@@ -5,6 +5,7 @@ class CreateAnimals < ActiveRecord::Migration[5.2]
       t.string  "product_name"
       t.integer "frequency"
       t.integer "sell_price"
+      t.integer "buy_price" 
     end
   end
 end
