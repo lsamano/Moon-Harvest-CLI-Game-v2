@@ -12,8 +12,15 @@ class Farmer < ActiveRecord::Base
       search: self.seed_bags.where("planted = ?", 0).where("harvested = ?", 0),
       empty: "You have no seeds you can plant!",
       choose: "Which seed would you like to plant?",
-      done: "Planted!",
-      action: {planted: 1}
+      take_action: lambda { |choice|
+        choice.update(planted: 1)
+        return "Planted!"
+      },
+      needs_brief_list: true,
+      print_brief_list: -> do
+        puts "SEED BAGS IN INVENTORY".colorize(:yellow)
+        self.brief_inventory
+      end
     }
   end
 
@@ -23,8 +30,11 @@ class Farmer < ActiveRecord::Base
       search: self.seed_bags.where("planted = ?", 1).where("ripe = ?", 1),
       empty: "You have no crops you can harvest right now!",
       choose: "What would you like to harvest?",
-      done: "Harvested!",
-      action: {harvested: 1}
+      needs_brief_list: false,
+      take_action: lambda { |choice|
+        choice.update(harvested: 1, planted: 0)
+        return "Harvested!"
+      }
     }
   end
 
@@ -34,8 +44,42 @@ class Farmer < ActiveRecord::Base
       search: self.seed_bags.where("planted = ?", 1).where("watered = ?", 0).where("ripe = ?", 0),
       empty: "You have no crops that need to be watered!",
       choose: "Which crop would you like to water?",
-      done: "Watered!",
-      action: {watered: 1}
+      needs_brief_list: false,
+      take_action: lambda { |crop|
+        crop.update(watered: 1)
+        return "Watered!"
+      }
+    }
+  end
+
+  def destroying
+    {
+      search: self.seed_bags.where("planted = ?", 1),
+      empty: "You have no crops to even destroy!",
+      choose: "Which crop would you like to destroy?",
+      needs_brief_list: true,
+      print_brief_list: -> do
+        puts "ALL PLANTED CROPS".colorize(:yellow)
+        self.brief_planted_crops
+      end,
+      take_action: lambda { |choice|
+        puts "-------------------------------------------"
+        puts ""
+        puts "This crop?"
+        puts ""
+        puts "#{choice.crop_type.crop_name}".upcase.bold
+        puts "Growth: #{(choice.growth/choice.crop_type.days_to_grow.to_f*100).round(1)}%"
+        puts ""
+        prompt = TTY::Prompt.new
+        confirmation = prompt.select("Are you absolutely sure you want to destroy your #{choice.crop_type.crop_name}?\nWARNING: This CANNOT be undone!", ["Destroy it!", "Nevermind"])
+        case confirmation
+        when "Destroy it!"
+          choice.destroy
+          return "The crop was destroyed."
+        when "Nevermind"
+          return "You chose not to destroy it."
+        end
+      }
     }
   end
 
@@ -56,6 +100,14 @@ class Farmer < ActiveRecord::Base
     end
     #=> TURNIP x4
     #=> TOMATO x1
+  end
+
+  # puts brief numbered list of field crops
+  def brief_planted_crops
+    planted_array = self.seed_bags.where("planted = ?", 1)
+    planted_array.each_with_index do |planted_seed_bag, index|
+      puts "#{index+1}. #{planted_seed_bag.crop_type.crop_name}     Growth: #{(planted_seed_bag.growth/planted_seed_bag.crop_type.days_to_grow.to_f*100).round(1)}%"
+    end
   end
 
   # returns counting hash for use in inventory and menus (tables)
@@ -146,5 +198,6 @@ class Farmer < ActiveRecord::Base
       "farmer_id": self.id,
       "crop_type_id": crop_type.id
     )
+    self.update(money: self.money - crop_type.buy_price)
   end
 end
