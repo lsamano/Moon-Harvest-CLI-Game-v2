@@ -390,14 +390,22 @@ class CommandLineInterface
       farming(farmer.harvesting)
     when "Destroy"
       farming(farmer.destroying)
+    when "Inventory"
+      show_inventory
+      return go_to_field
     when "Exit"
       game_menu
     end
   end
 
   def crop_options
-    array = farmer.crops_in_season.pluck("crop_name")
-    array << "Exit"
+    array = farmer.crops_in_season
+    # hash = { "Exit": "Exit" }
+    formed_hash = array.each_with_object({}) do |crop_type, hash|
+      hash["#{crop_type.crop_name.titleize} Seeds"] = crop_type
+    end
+    formed_hash["Exit"] = "Exit"
+    return formed_hash
   end
 
   def go_to_barn
@@ -519,7 +527,7 @@ class CommandLineInterface
       one_row << "#{crop_type.buy_price}".bold + " G"
       rows << one_row
     end
-    market_table = Terminal::Table.new :title => "#{farmer.season.titleize} Crops on Sale".bold.colorize(:magenta), :headings => ['Name', 'Days to Grow', 'Price'], :rows => rows
+    market_table = Terminal::Table.new :title => "#{farmer.season.titleize} Seeds on Sale".bold.colorize(:magenta), :headings => ['Name', 'Days to Grow', 'Price'], :rows => rows
     market_table.align_column(1, :center)
     market_table.align_column(2, :center)
     puts market_table
@@ -529,21 +537,20 @@ class CommandLineInterface
   def buy_seeds_option
     print_seeds_on_sale
     # new prompt selecting from list of seeds to buy
-    choice = select_prompt("Vendor: What would you like to purchase?", crop_options)
-    if choice == "Exit"
+    chosen_bag = select_prompt("Vendor: What would you like to purchase?", crop_options)
+    if chosen_bag == "Exit"
       go_to_market
     else
-      chosen_bag = CropType.find_by(crop_name: choice)
       # Checks if the farmer has enough money to make the purchase
       if chosen_bag.buy_price > farmer.money
         self.warning_message = "Vendor: You don't have enough money to buy that!"
         go_to_market
       else
-        confirmation = select_prompt("Buy one bag of #{choice}?", ["Yes", "No"])
+        confirmation = select_prompt("Buy one bag of #{chosen_bag.crop_name} seeds?", ["Yes", "No"])
         case confirmation
         when "Yes"
           farmer.buy_seed_bag(chosen_bag)
-          self.success_message = "You bought a bag of #{choice} seeds!"
+          self.success_message = "You bought a bag of #{chosen_bag.crop_name} seeds!"
           go_to_market
         when "No"
           go_to_market
