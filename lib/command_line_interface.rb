@@ -466,9 +466,7 @@ class CommandLineInterface
       one_row = []
       one_row << "#{livestock.name}".upcase.bold
       one_row << "#{livestock.animal.species}".capitalize
-      hearts = ""
-      number_of_hearts = (livestock.love.to_f/2).ceil
-      number_of_hearts.times {|i| hearts << "❤️ "}
+      hearts = "❤️ " * ((livestock.love.to_f/2).ceil)
       one_row << "#{hearts}"
       one_row << (livestock.brushed? ? "✅" : "🔳")
       one_row << (livestock.fed? ? "✅" : "🔳")
