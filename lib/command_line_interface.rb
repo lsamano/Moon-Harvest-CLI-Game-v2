@@ -187,9 +187,7 @@ class CommandLineInterface
     notice("Welcome back, Farmer #{self.farmer.name}!", :magenta)
     puts ""
     sleep(1.3)
-
     stop_audio
-    # sleep(1.seconds)
     start_audio("./audio/02.mp3")
     game_menu
   end
