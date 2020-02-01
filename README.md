@@ -24,6 +24,7 @@ You are a farmer on the moon. One day, at the local Marketplace, one of the vend
 - (*New!*) Seeds on sale will rotate with the season
 
 ### 🐮 Care for Barn Animals
+- (*New!*) Buy cows and sheep
 - Brush and Feed your cow and sheep
 - Milk your cow daily
 - Shear your sheep every three days
