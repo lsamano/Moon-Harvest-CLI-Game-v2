@@ -683,7 +683,7 @@ class CommandLineInterface
     end
   end
 
-  def animal_buy_table
+  def animal_buy_choices
     animal_hash = Animal.all.each_with_object({}) do |animal, hash|
       hash["#{animal.species.titleize} (#{animal.buy_price} G)"] = animal
     end
@@ -695,7 +695,7 @@ class CommandLineInterface
     game_header("RANCH")
     string = "Oh yeah? My sweet babies don't come cheap.\nA cow is worth 6000 G and a sheep is 4000 G."
     notice(string)
-    choice = select_prompt("Which do you want?", animal_buy_table)
+    choice = select_prompt("Which do you want?", animal_buy_choices)
     if choice == "Nevermind"
       return go_to_ranch
     elsif self.farmer.money < choice.buy_price
