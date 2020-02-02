@@ -664,9 +664,16 @@ class CommandLineInterface
 
   def speak_to_clara
     game_header("CLARA")
-    string = "\nYou say hello to Clara. \nShe glances up and gives you a slight \nnod before returning to her notebook.\n "
+    string = "You say hello to Clara. \nShe glances up and gives you a slight \nnod before returning to her notebook."
     notice(string)
-    select_prompt("Press Enter to Exit.", ["Exit"])
+    choice = select_prompt("", ["Keep Talking", "Exit"])
+    case choice
+    when "Keep Talking"
+      game_header("CLARA")
+      string = "She's either ignoring you or focusing \nintensely on her book. Or both."
+      notice(string)
+      select_prompt("(Try raising your friendship level with her first.)".colorize(:magenta), ["Exit"])
+    end
     go_to_town
   end
 
