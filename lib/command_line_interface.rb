@@ -84,7 +84,7 @@ class CommandLineInterface
     if Farmer.all.empty?
       [ "New Game", "Exit" ]
     else
-      [ "Load Game", "New Game", "Delete File", "Exit" ]
+      [ "Load Game", "New Game", "Delete File", "Exit".colorize(:red) ]
     end
   end
 
@@ -242,7 +242,7 @@ class CommandLineInterface
   end
 
   def main_menu_options
-    [ "Inventory", "Field", "Barn", "Home", "Town", "Market", "Exit" ]
+    [ "Inventory", "Field", "Barn", "Home", "Town", "Market", "Exit".colorize(:red) ]
   end
 
   # Main menu prompt
@@ -503,16 +503,18 @@ class CommandLineInterface
 
   def go_to_market
     game_header("MARKETPLACE")
-    choice = select_prompt("Vendor: What would you like to do?", ["Buy Seeds", "Sell Crops", "Sell Animal Products", "About that Dog Bed...", "Go To Farm", "Go To Town"])
+    choice = select_prompt("Vendor: What would you like to do?", ["Buy", "Sell", "About that Dog Bed...", "Go To Farm", "Go To Town"])
     case choice
-    when "Buy Seeds"
+    when "Buy"
       buy_seeds_option
-    when "Sell Crops"
-      sell_crops_option
+    # when "Sell Crops"
+    #   sell_crops_option
+    when "Sell"
+      sell_option
     when "About that Dog Bed..."
       dog_bed_option
-    when "Sell Animal Products"
-      sell_products_option
+    # when "Sell Animal Products"
+    #   sell_products_option
     when "Go To Farm"
       game_menu
     when "Go To Town"
@@ -564,6 +566,16 @@ class CommandLineInterface
     end
   end
 
+  def sell_option
+    choice = select_prompt("What would you like to sell?", ["All Crops", "All Products"])
+    case choice
+    when "All Crops"
+      return sell_crops_option
+    when "All Products"
+      return sell_products_option
+    end
+  end
+
   def sell_crops_option
     harvested_hash = farmer.seed_bag_count_hash(1)
     if harvested_hash.none?
@@ -601,7 +613,6 @@ class CommandLineInterface
       new_product_hash = product_array.each_with_object(Hash.new(0)) do |product_instance, inv_hash|
         inv_hash[product_instance.livestock.animal.product_name] += 1
       end
-      # binding.pry
       new_product_hash.each do |product_name, amount|
         animal = Animal.find_by(product_name: product_name)
         subtotal = animal.sell_price * amount
@@ -613,7 +624,6 @@ class CommandLineInterface
       case choice
       when "Yes, sell them all!"
         product_array.each do |product_instance|
-          # binding.pry
           product_instance.destroy
         end
         farmer.money += total
@@ -679,7 +689,7 @@ class CommandLineInterface
 
   def go_to_ranch
     game_header("RANCH")
-    string = "You greet Bellita, but she's busy giving \nher cow a good brushing."
+    string = "Bellita is busy giving her cow Andromeda a good\nbrushing. Andromeda seems to be enjoying it."
     notice(string)
     choice = select_prompt("What would you like to do?", ["Buy an Animal", "Talk", "Go Back"])
     case choice
@@ -694,7 +704,7 @@ class CommandLineInterface
 
   def speak_to_bellita
     game_header("BELLITA")
-    string = "You greet Bellita. \nShe replies, \"Heya, Farmer. Be sure to love \nyour animals. They're counting on you.\""
+    string = "You greet Bellita. \nShe replies, \"Heya, #{farmer.name}. Be sure to love \nyour animals. They're counting on you.\""
     notice(string)
     select_prompt("Press Enter to Exit.", ["Exit"])
     go_to_ranch
