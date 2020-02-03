@@ -674,13 +674,23 @@ class CommandLineInterface
     game_header("RANCH")
     string = "You greet Bellita, but she's busy giving \nher cow a good brushing."
     notice(string)
-    choice = select_prompt("What would you like to do?", ["Buy an Animal", "Go Back"])
+    choice = select_prompt("What would you like to do?", ["Buy an Animal", "Talk", "Go Back"])
     case choice
     when "Go Back"
       return go_to_town
+    when "Talk"
+      return speak_to_bellita
     when "Buy an Animal"
       return buy_livestock_menu
     end
+  end
+
+  def speak_to_bellita
+    game_header("BELLITA")
+    string = "\nYou greet Bellita. \nShe replies, \"Heya, Farmer. Be sure to love \nyour animals. They're counting on you.\""
+    notice(string)
+    select_prompt("Press Enter to Exit.", ["Exit"])
+    go_to_ranch
   end
 
   def animal_buy_table
