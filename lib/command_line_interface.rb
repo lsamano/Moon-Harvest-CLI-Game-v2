@@ -694,7 +694,7 @@ class CommandLineInterface
 
   def speak_to_bellita
     game_header("BELLITA")
-    string = "\nYou greet Bellita. \nShe replies, \"Heya, Farmer. Be sure to love \nyour animals. They're counting on you.\""
+    string = "You greet Bellita. \nShe replies, \"Heya, Farmer. Be sure to love \nyour animals. They're counting on you.\""
     notice(string)
     select_prompt("Press Enter to Exit.", ["Exit"])
     go_to_ranch
