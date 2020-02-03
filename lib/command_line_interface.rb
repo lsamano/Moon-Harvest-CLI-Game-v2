@@ -664,9 +664,16 @@ class CommandLineInterface
 
   def speak_to_clara
     game_header("CLARA")
-    string = "\nYou say hello to Clara. \nShe glances up and gives you a slight \nnod before returning to her notebook.\n "
+    string = "You say hello to Clara. \nShe glances up and gives you a slight \nnod before returning to her notebook."
     notice(string)
-    select_prompt("Press Enter to Exit.", ["Exit"])
+    choice = select_prompt("", ["Keep Talking", "Exit"])
+    case choice
+    when "Keep Talking"
+      game_header("CLARA")
+      string = "She's either ignoring you or focusing \nintensely on her book. Or both."
+      notice(string)
+      select_prompt("(Try raising your friendship level with her first.)".colorize(:magenta), ["Exit"])
+    end
     go_to_town
   end
 
@@ -693,7 +700,7 @@ class CommandLineInterface
     go_to_ranch
   end
 
-  def animal_buy_table
+  def animal_buy_choices
     animal_hash = Animal.all.each_with_object({}) do |animal, hash|
       hash["#{animal.species.titleize} (#{animal.buy_price} G)"] = animal
     end
@@ -705,7 +712,7 @@ class CommandLineInterface
     game_header("RANCH")
     string = "Oh yeah? My sweet babies don't come cheap.\nA cow is worth 6000 G and a sheep is 4000 G."
     notice(string)
-    choice = select_prompt("Which do you want?", animal_buy_table)
+    choice = select_prompt("Which do you want?", animal_buy_choices)
     if choice == "Nevermind"
       return go_to_ranch
     elsif self.farmer.money < choice.buy_price

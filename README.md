@@ -11,7 +11,7 @@ ruby bin/run.rb
 ```
 
 ## The Story
-You are a farmer on the moon. One day, at the local Marketplace, one of the vendors has a dog. He says he will ship them away since no one can take of them, so you offer to take them! In order to save up to buy a bed for your new friend, you'll have to farm and sell your crops.
+You are a farmer on the moon. One day, at the local Marketplace, one of the vendors has a dog. He says he will ship them away since no one can take care of them, so you offer to take them! In order to save up to buy a bed for your new friend, you'll have to farm and sell your crops.
 
 ## Gameplay Features
 ### 🌱 Full-On Farming
@@ -24,6 +24,7 @@ You are a farmer on the moon. One day, at the local Marketplace, one of the vend
 - (*New!*) Seeds on sale will rotate with the season
 
 ### 🐮 Care for Barn Animals
+- (*New!*) Buy cows and sheep
 - Brush and Feed your cow and sheep
 - Milk your cow daily
 - Shear your sheep every three days
