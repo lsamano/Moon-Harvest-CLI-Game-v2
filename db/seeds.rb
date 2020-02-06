@@ -188,3 +188,13 @@ CropType.create(
 #   gift_to_give_id: susans.id,
 #   fave_gift_id: susans.id
 # )
+# Character.create(
+#   name: "Bellita",
+#   gift_to_give_id: teddy.id,
+#   fave_gift_id: tiramisu.id
+# )
+# Character.create(
+#   name: "Ven",
+#   gift_to_give_id: tiramisu.id,
+#   fave_gift_id: teddy.id
+# )
