@@ -31,6 +31,9 @@ You are a farmer on the moon. One day, at the local Marketplace, one of the vend
 
 ### 🤝 Get to Know the Town
 - Coming Soon!
+- Clara, the intelligent war strategist
+- Bellita, the loving ranch owner
+- Ven, the vendor!
 
 ### 🐶 Daily Life
 - Game follows a daily cycle - Sleep to advance the game
