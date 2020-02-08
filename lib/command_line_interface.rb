@@ -170,7 +170,7 @@ class CommandLineInterface
     gets
     notice("It would be nice if you could buy #{farmer.dog.name} their own bed.".bold, :light_red)
     gets
-    notice("One of the vendors at the marketplace is \nselling a dog bed for 10,000 G. \n\nMaybe you can buy it for #{farmer.dog.name}...?")
+    notice("Ven the vendor at the marketplace is \nselling a dog bed for 10,000 G. \n\nMaybe you can buy it for #{farmer.dog.name}...?")
     gets
     system("clear")
     notice("You decide to save up 10,000 G to buy a dog bed!".bold)
@@ -503,7 +503,8 @@ class CommandLineInterface
 
   def go_to_market
     game_header("MARKETPLACE")
-    choice = select_prompt("Vendor: What would you like to do?", ["Buy", "Sell", "About that Dog Bed...", "Go To Farm", "Go To Town"])
+    notice("Ven is set up at his usual spot. \nHe flashes you his winning smile.")
+    choice = select_prompt("What would you like to do?", ["Buy", "Sell", "About that Dog Bed...", "Go To Farm", "Go To Town"])
     case choice
     when "Buy"
       buy_seeds_option
@@ -524,8 +525,8 @@ class CommandLineInterface
 
   def print_seeds_on_sale
     # list of seeds and prices
-    puts "==========================================="
-    puts ""
+    # puts "==========================================="
+    # puts ""
     rows = []
     farmer.crops_in_season.each do |crop_type|
       one_row = []
@@ -542,15 +543,16 @@ class CommandLineInterface
   end
 
   def buy_seeds_option
+    game_header("MARKETPLACE")
     print_seeds_on_sale
     # new prompt selecting from list of seeds to buy
-    chosen_bag = select_prompt("Vendor: What would you like to purchase?", crop_options)
+    chosen_bag = select_prompt("Ven: What would you like to purchase?", crop_options)
     if chosen_bag == "Exit"
       go_to_market
     else
       # Checks if the farmer has enough money to make the purchase
       if chosen_bag.buy_price > farmer.money
-        self.warning_message = "Vendor: You don't have enough money to buy that!"
+        self.warning_message = "Ven: You don't have enough money to buy that!"
         go_to_market
       else
         confirmation = select_prompt("Buy one bag of #{chosen_bag.crop_name} seeds?", ["Yes", "No"])
@@ -579,7 +581,7 @@ class CommandLineInterface
   def sell_crops_option
     harvested_hash = farmer.seed_bag_count_hash(1)
     if harvested_hash.none?
-      self.warning_message = "Vendor: Doesn't look like you have any crops \nto sell me."
+      self.warning_message = "Ven: Doesn't look like you have any crops \nto sell me."
     else
       total = 0
       harvested_hash.each do |crop_name, amount|
@@ -606,7 +608,7 @@ class CommandLineInterface
 
   def sell_products_option
     if farmer.product_inventory_hash.empty?
-      self.warning_message = "Vendor: Doesn't look like you have anything \nto sell me."
+      self.warning_message = "Ven: Doesn't look like you have anything \nto sell me."
     else
       total = 0
       product_array = farmer.products.where("farmer_id = ?", farmer.id)
@@ -636,13 +638,13 @@ class CommandLineInterface
 
   def dog_bed_option
     game_header("MARKETPLACE")
-    sentence = "Vendor: Oh, that thing? It costs " + "10,000".bold + " G."
+    sentence = "Ven: Oh, that thing? It costs " + "10,000".bold + " G."
     notice(sentence, :magenta)
     choice = select_prompt("Do you want to buy it?", [ "Yes", "No" ])
     case choice
     when "Yes"
       if farmer.money < 10000
-        self.warning_message = "Vendor: Sorry, but you don't have enough cash! \nCome back when you have 10,000 G."
+        self.warning_message = "Ven: Sorry, but you don't have enough cash! \nCome back when you have 10,000 G."
         go_to_market
       else
         game_finish
