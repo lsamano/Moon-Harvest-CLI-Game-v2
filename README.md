@@ -17,8 +17,7 @@ You are a farmer on the moon. One day, at the local Marketplace, one of the vend
 ### 🌱 Full-On Farming
 - Buy seeds from the local marketplace
 - Plant seeds in your field
-- Water your crops
-- Harvest ripe crops
+- Water and harvest your crops
 - Destroy undesired crops
 - Sell crops at the marketplace
 - (*New!*) Seeds on sale will rotate with the season
@@ -30,14 +29,15 @@ You are a farmer on the moon. One day, at the local Marketplace, one of the vend
 - Shear your sheep every three days
 
 ### 🤝 Get to Know the Town
-- Coming Soon!
 - Clara, the intelligent war strategist
 - Bellita, the loving ranch owner
-- Ven, the vendor!
+- Ven, the charismatic vendor
+- More Coming Soon!
 
 ### 🐶 Daily Life
 - Game follows a daily cycle - Sleep to advance the game
 - Enjoy randomized flavor text interactions with your dog
+- Pet your dog!
 - Rename yourself or your dog at any time
 - Check your inventory at any time
 - (*New!*) Choose a game difficulty; Easy, Medium, or Hard
