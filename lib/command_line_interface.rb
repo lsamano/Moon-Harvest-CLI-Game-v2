@@ -739,17 +739,21 @@ class CommandLineInterface
   end
 
   def home_options
-    [ "Sleep", "Rename...", "Go Outside" ]
+    [ "Sleep", "Pet #{farmer.dog.name}", "Rename...", "Go Outside" ]
   end
 
-  def go_to_home
+  def go_to_home(flavor_text = farmer.dog.flavor_text)
     game_header("HOME")
-    notice(farmer.dog.flavor_text, :magenta)
+    notice(flavor_text, :magenta)
+    hearts = "❤️ " * ((farmer.dog.love.to_f/2).ceil)
+    puts "#{farmer.dog.name} loves you this much: #{hearts}"
     choice = select_prompt("What would you like to do?", home_options)
     case choice
     when "Sleep"
       sleep_sequence
       game_menu
+    when "Pet #{farmer.dog.name}"
+      petting_menu(flavor_text)
     when "Rename..."
       rename_menu
     when "Go Outside"
@@ -764,6 +768,11 @@ class CommandLineInterface
     sleep(0.5)
     notice("☀️  Good morning!", :light_yellow)
     sleep(0.8)
+  end
+
+  def petting_menu(flavor_text)
+    self.success_message = farmer.dog.get_petted
+    go_to_home(flavor_text)
   end
 
   def rename_menu

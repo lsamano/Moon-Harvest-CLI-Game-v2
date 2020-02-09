@@ -168,6 +168,11 @@ class Farmer < ActiveRecord::Base
     # increase day
     self.increment!(:day)
 
+    # Dog updated
+    if dog.petted == 1 && dog.love < 10
+      dog.update(petted: 0, love: dog.love + 1)
+    end
+
     # Crops updated
     planted_seed_array = self.seed_bags.where("planted = ?", 1)
     planted_seed_array.each do |seed_bag|

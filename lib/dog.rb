@@ -15,4 +15,13 @@ class Dog < ActiveRecord::Base
       ]
       .sample
     end
+
+    def get_petted
+      if self.petted == 1
+        "You pet #{self.name} more. Who's a good dog?"
+      else
+        self.update(petted: 1)
+        "You pet #{self.name}! They seem to like it."
+      end
+    end
 end
