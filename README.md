@@ -40,6 +40,8 @@ You are a farmer on the moon. One day, at the local Marketplace, one of the vend
 - Pet your dog!
 - Rename yourself or your dog at any time
 - Check your inventory at any time
+
+### Play Your Way
 - (*New!*) Choose a game difficulty; Easy, Medium, or Hard
 
 ## Credits
