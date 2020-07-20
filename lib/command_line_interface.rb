@@ -734,6 +734,7 @@ class CommandLineInterface
       name_given = naming_prompt("Please name your new #{choice.species}.")
       farmer.buy_livestock(choice, name_given)
       self.success_message = "You bought a new #{choice.species} \nand named them #{name_given}!"
+      self.farmer.livestocks.reload
       return go_to_ranch
     end
   end
