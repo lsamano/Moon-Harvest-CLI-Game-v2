@@ -1,3 +1,5 @@
+![preview image of the game's field screen](/images/preview.png)
+
 # Moon Harvest - A Life in Space
 Moon Harvest is a farming simulation game, set on the moon. It is a CLI game made with Ruby.
 
